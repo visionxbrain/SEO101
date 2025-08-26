@@ -1,11 +1,12 @@
 // API Configuration for both Mac and Windows
 const getApiUrl = () => {
-  // Check multiple possible backend URLs
-  const possibleUrls = [
-    'http://localhost:8000',     // Windows default
-    'http://127.0.0.1:8000',     // Windows alternative
-    'http://0.0.0.0:8000',       // Mac/Linux default
-  ];
+  // Production URL (เปลี่ยนเป็น URL จาก Render)
+  const PRODUCTION_API = 'https://seo101-backend.onrender.com';
+  
+  // Check if we're in production (Netlify)
+  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return PRODUCTION_API;
+  }
   
   // In production, use environment variable
   if (import.meta.env.VITE_API_URL) {
