@@ -3,13 +3,13 @@
   "outputDirectory": "url-checker-app/dist",
   "framework": "vite",
   "functions": {
-    "api/**/*.py": {
+    "api/index.py": {
       "runtime": "python3.9"
     }
   },
   "rewrites": [
     {
-      "source": "/api/:path*",
+      "source": "/api/(.*)",
       "destination": "/api"
     },
     {
