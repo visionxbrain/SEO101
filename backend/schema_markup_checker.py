@@ -936,12 +936,19 @@ def extract_schema_markup(url: str) -> Dict:
     try:
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'th-TH,th;q=0.9,en;q=0.8',
+            'Accept-Encoding': 'gzip, deflate',
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
         }
         
+        print(f"Fetching schema from: {url}")
         session = requests.Session()
-        response = session.get(url, headers=headers, timeout=12, allow_redirects=True)
+        # Add verify=False for Windows SSL issues (only for testing)
+        response = session.get(url, headers=headers, timeout=15, allow_redirects=True, verify=True)
         response.raise_for_status()
+        print(f"Successfully fetched {url} - Status: {response.status_code}")
         
         soup = BeautifulSoup(response.content, 'html.parser')
         schemas = []
