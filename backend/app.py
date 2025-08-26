@@ -307,8 +307,8 @@ async def export_results(format: str, data: str):
     results = json.loads(data)
     
     if format == 'json':
-        output = json.dumps(results, indent=2)
-        media_type = 'application/json'
+        output = json.dumps(results, indent=2, ensure_ascii=False)
+        media_type = 'application/json; charset=utf-8'
         filename = 'results_404_check.json'
     elif format == 'csv':
         output = io.StringIO()
