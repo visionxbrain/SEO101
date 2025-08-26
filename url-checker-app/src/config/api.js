@@ -1,11 +1,9 @@
 // API Configuration for both Mac and Windows
 const getApiUrl = () => {
-  // Production URL (เปลี่ยนเป็น URL จาก Render)
-  const PRODUCTION_API = 'https://seo101-backend.onrender.com';
-  
-  // Check if we're in production (Netlify)
+  // Check if we're in production (Vercel)
   if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    return PRODUCTION_API;
+    // Same domain API calls for Vercel
+    return '';
   }
   
   // In production, use environment variable

@@ -1,0 +1,9 @@
+{
+  "name": "seo101",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "cd url-checker-app && npm install && npm run build",
+    "dev": "cd url-checker-app && npm run dev"
+  }
+}
