@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Code, Search, AlertCircle, CheckCircle, XCircle, Download, TrendingUp, FileCode, Award, FileText, Globe, ExternalLink, ArrowUp } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Code, Search, AlertCircle, CheckCircle, XCircle, Download, TrendingUp, FileCode, Award, FileText, Globe, ExternalLink, ArrowUp, WifiOff } from 'lucide-react';
+import { API_URL, handleApiError, testConnection } from '../../config/api';
 import './SchemaChecker.css';
 
 function SchemaChecker() {
@@ -13,6 +14,21 @@ function SchemaChecker() {
   const [progress, setProgress] = useState({ status: '', current: 0, total: 100 });
   const [logs, setLogs] = useState([]);
   const [streaming, setStreaming] = useState(false);
+  const [connectionError, setConnectionError] = useState(false);
+
+  // Test connection on component mount
+  useEffect(() => {
+    const checkConnection = async () => {
+      const result = await testConnection();
+      if (!result.success) {
+        setConnectionError(true);
+        setError(result.error.message);
+      } else {
+        setConnectionError(false);
+      }
+    };
+    checkConnection();
+  }, []);
 
   const handleCheck = async () => {
     if (inputMode === 'sitemap') {
@@ -32,7 +48,7 @@ function SchemaChecker() {
 
       try {
         const eventSource = new EventSource(
-          `http://localhost:8000/api/check-schema-markup-stream?` + 
+          `${API_URL}/api/check-schema-markup-stream?` + 
           new URLSearchParams({
             sitemap_url: sitemapUrl,
             limit: urlLimit.toString(),
