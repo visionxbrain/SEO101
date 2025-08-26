@@ -1,20 +1,5 @@
 {
   "buildCommand": "cd url-checker-app && npm install && npm run build",
   "outputDirectory": "url-checker-app/dist",
-  "framework": "vite",
-  "functions": {
-    "api/index.py": {
-      "runtime": "python3.9"
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/$1"
-    }
-  ]
+  "framework": "vite"
 }

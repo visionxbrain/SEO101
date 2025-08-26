@@ -1,9 +1,9 @@
 // API Configuration for both Mac and Windows
 const getApiUrl = () => {
-  // Check if we're in production (Vercel)
+  // Check if we're in production
   if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    // Same domain API calls for Vercel
-    return '';
+    // Use Render.com backend (จะอัพเดทเป็น URL จริงหลังได้ URL จาก Render)
+    return 'https://seo101-backend.onrender.com';
   }
   
   // In production, use environment variable
