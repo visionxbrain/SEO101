@@ -13,6 +13,42 @@ import xml.etree.ElementTree as ET
 
 router = APIRouter()
 
+def fix_thai_encoding(obj):
+    """Fix incorrectly encoded Thai text in JSON data"""
+    if isinstance(obj, str):
+        # Check if string contains Unicode escape sequences for Thai characters
+        if r'\u0e' in obj or '\\u0e' in obj:
+            try:
+                # Try to decode Unicode escapes
+                # First handle double-escaped sequences
+                fixed = obj.replace('\\\\', '\\')
+                # Then decode the Unicode escapes
+                fixed = fixed.encode().decode('unicode-escape')
+                # If result contains Thai characters, return it
+                if any('\u0e00' <= c <= '\u0e7f' for c in fixed):
+                    return fixed
+            except:
+                pass
+        
+        # Also try to detect and fix mojibake patterns
+        # Common pattern: à¸ represents Thai character encoding issues
+        if 'à¸' in obj or 'à¹' in obj or 'Ã' in obj:
+            try:
+                # Try to fix UTF-8 decoded as Latin-1
+                fixed = obj.encode('latin-1').decode('utf-8', errors='ignore')
+                if any('\u0e00' <= c <= '\u0e7f' for c in fixed):
+                    return fixed
+            except:
+                pass
+        
+        return obj
+    elif isinstance(obj, dict):
+        return {key: fix_thai_encoding(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [fix_thai_encoding(item) for item in obj]
+    else:
+        return obj
+
 class SchemaCheckRequest(BaseModel):
     urls: Union[List[str], str]  # Can be list of URLs or sitemap URL
     max_workers: int = 5
@@ -950,7 +986,23 @@ def extract_schema_markup(url: str) -> Dict:
         json_ld_scripts = soup.find_all('script', type='application/ld+json')
         for script in json_ld_scripts:
             try:
-                schema_data = json.loads(script.string)
+                # Get the raw script content
+                raw_content = script.string
+                
+                # First try to parse as-is
+                try:
+                    schema_data = json.loads(raw_content)
+                except json.JSONDecodeError:
+                    # If it fails, try to fix common encoding issues
+                    # Remove BOM if present
+                    if raw_content.startswith('\ufeff'):
+                        raw_content = raw_content[1:]
+                    # Try again
+                    schema_data = json.loads(raw_content)
+                
+                # Fix Thai encoding in the parsed data
+                schema_data = fix_thai_encoding(schema_data)
+                
                 if isinstance(schema_data, list):
                     for item in schema_data:
                         if '@type' in item:
@@ -967,7 +1019,9 @@ def extract_schema_markup(url: str) -> Dict:
                         'type': schema_data['@type'],
                         'data': schema_data
                     })
-            except json.JSONDecodeError:
+            except (json.JSONDecodeError, Exception) as e:
+                # Log the error but continue
+                print(f"Error parsing JSON-LD: {str(e)[:100]}")
                 continue
         
         # 2. Check for Microdata
