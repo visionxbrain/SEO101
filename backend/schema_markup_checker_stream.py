@@ -244,17 +244,17 @@ async def stream_schema_check(request: SchemaCheckStreamRequest) -> Generator:
     """Stream schema checking progress with improved stability"""
     
     # Send initial status
-    yield f"data: {json.dumps({'type': 'status', 'message': 'กำลังดึงข้อมูลจาก Sitemap...', 'progress': 0})}\\n\\n"
+    yield f"data: {json.dumps({'type': 'status', 'message': 'กำลังดึงข้อมูลจาก Sitemap...', 'progress': 0}, ensure_ascii=False)}\\n\\n"
     yield f": keep-alive\\n\\n"
     
     # Step 1: Fetch URLs from sitemap
     urls = extract_urls_from_sitemap(request.sitemap_url, request.limit)
     
     if not urls:
-        yield f"data: {json.dumps({'type': 'error', 'message': 'ไม่พบ URLs ใน sitemap หรือไม่สามารถเข้าถึง sitemap'})}\\n\\n"
+        yield f"data: {json.dumps({'type': 'error', 'message': 'ไม่พบ URLs ใน sitemap หรือไม่สามารถเข้าถึง sitemap'}, ensure_ascii=False)}\\n\\n"
         return
     
-    yield f"data: {json.dumps({'type': 'status', 'message': f'พบ {len(urls)} URLs กำลังตรวจสอบ Schema...', 'progress': 10, 'total_urls': len(urls)})}\\n\\n"
+    yield f"data: {json.dumps({'type': 'status', 'message': f'พบ {len(urls)} URLs กำลังตรวจสอบ Schema...', 'progress': 10, 'total_urls': len(urls)}, ensure_ascii=False)}\\n\\n"
     
     # Step 2: Check schema for each URL
     results = []
@@ -270,7 +270,7 @@ async def stream_schema_check(request: SchemaCheckStreamRequest) -> Generator:
         batch_end = min(batch_start + batch_size, len(urls))
         batch = urls[batch_start:batch_end]
         
-        yield f"data: {json.dumps({'type': 'log', 'message': f'ตรวจสอบ URLs {batch_start + 1}-{batch_end} จาก {len(urls)}', 'current': batch_end, 'total': len(urls)})}\\n\\n"
+        yield f"data: {json.dumps({'type': 'log', 'message': f'ตรวจสอบ URLs {batch_start + 1}-{batch_end} จาก {len(urls)}', 'current': batch_end, 'total': len(urls)}, ensure_ascii=False)}\\n\\n"
         
         # Check schemas in batch
         with ThreadPoolExecutor(max_workers=min(request.max_workers, 3)) as executor:
@@ -284,10 +284,10 @@ async def stream_schema_check(request: SchemaCheckStreamRequest) -> Generator:
                     # Update statistics
                     if result['has_schema']:
                         with_schema += 1
-                        yield f"data: {json.dumps({'type': 'found', 'url': result['url'], 'schema_count': result['schema_count'], 'types': result['schema_types'][:3]})}\\n\\n"
+                        yield f"data: {json.dumps({'type': 'found', 'url': result['url'], 'schema_count': result['schema_count'], 'types': result['schema_types'][:3]}, ensure_ascii=False)}\\n\\n"
                     else:
                         without_schema += 1
-                        yield f"data: {json.dumps({'type': 'not_found', 'url': result['url']})}\\n\\n"
+                        yield f"data: {json.dumps({'type': 'not_found', 'url': result['url']}, ensure_ascii=False)}\\n\\n"
                     
                     if result.get('ai_search_optimized'):
                         ai_optimized += 1
@@ -304,14 +304,14 @@ async def stream_schema_check(request: SchemaCheckStreamRequest) -> Generator:
         
         # Update progress
         progress = 10 + (80 * batch_end / len(urls))
-        yield f"data: {json.dumps({'type': 'progress', 'progress': round(progress)})}\\n\\n"
+        yield f"data: {json.dumps({'type': 'progress', 'progress': round(progress)}, ensure_ascii=False)}\\n\\n"
         
         # Keep-alive between batches
         yield f": keep-alive\\n\\n"
         await asyncio.sleep(0.2)
     
     # Step 3: Prepare summary
-    yield f"data: {json.dumps({'type': 'status', 'message': 'กำลังสรุปผลการตรวจสอบ...', 'progress': 90})}\\n\\n"
+    yield f"data: {json.dumps({'type': 'status', 'message': 'กำลังสรุปผลการตรวจสอบ...', 'progress': 90}, ensure_ascii=False)}\\n\\n"
     
     # Sort schema types by frequency
     common_types = dict(sorted(
@@ -337,7 +337,7 @@ async def stream_schema_check(request: SchemaCheckStreamRequest) -> Generator:
         'progress': 100
     }
     
-    yield f"data: {json.dumps(final_data)}\\n\\n"
+    yield f"data: {json.dumps(final_data, ensure_ascii=False)}\\n\\n"
 
 @router.get("/api/check-schema-markup-stream")
 async def check_schema_markup_stream(
@@ -358,7 +358,7 @@ async def check_schema_markup_stream(
     
     return StreamingResponse(
         stream_schema_check(request),
-        media_type="text/event-stream",
+        media_type="text/event-stream; charset=utf-8",
         headers={
             "Cache-Control": "no-cache, no-store, must-revalidate",
             "Connection": "keep-alive",

@@ -232,14 +232,14 @@ async def stream_blog_link_check(request: BlogLinkCheckStreamRequest) -> Generat
             start_from_blog = saved_progress.get('last_blog_index', 0)
             start_from_link = saved_progress.get('last_link_index', 0)
             
-            yield f"data: {json.dumps({'type': 'status', 'message': f'กำลังดำเนินการต่อจากบทความที่ {start_from_blog}/{len(blog_urls, ensure_ascii=False)}...', 'progress': saved_progress.get('progress', 0), 'resume_token': session_token})}\n\n"
+            yield f"data: {json.dumps({'type': 'status', 'message': f'กำลังดำเนินการต่อจากบทความที่ {start_from_blog}/{len(blog_urls)}...', 'progress': saved_progress.get('progress', 0), 'resume_token': session_token})}\n\n"
         else:
-            yield f"data: {json.dumps({'type': 'warning', 'message': 'ไม่พบข้อมูลที่บันทึกไว้ เริ่มใหม่ทั้งหมด'}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'warning', 'message': 'ไม่พบข้อมูลที่บันทึกไว้ เริ่มใหม่ทั้งหมด'})}\n\n"
             request.resume_token = None
     
     if not request.resume_token:
         # Fresh start - fetch blog URLs from sitemap
-        yield f"data: {json.dumps({'type': 'status', 'message': 'กำลังดึงข้อมูลจาก Sitemap...', 'progress': 0, 'resume_token': session_token}, ensure_ascii=False)}\n\n"
+        yield f"data: {json.dumps({'type': 'status', 'message': 'กำลังดึงข้อมูลจาก Sitemap...', 'progress': 0, 'resume_token': session_token})}\n\n"
         yield f": keep-alive\n\n"
         
         # Use custom blog path if provided
@@ -248,11 +248,11 @@ async def stream_blog_link_check(request: BlogLinkCheckStreamRequest) -> Generat
         
         if not blog_urls:
             error_msg = f'ไม่พบ URLs ที่มี path "{blog_path}" ใน sitemap'
-            yield f"data: {json.dumps({'type': 'error', 'message': error_msg}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'error', 'message': error_msg})}\n\n"
             return
         
         status_msg = f'พบ URLs ที่มี "{blog_path}" จำนวน {len(blog_urls)} URLs'
-        yield f"data: {json.dumps({'type': 'status', 'message': status_msg, 'progress': 10, 'total_blogs': len(blog_urls, ensure_ascii=False), 'resume_token': session_token, 'blog_path': blog_path})}\n\n"
+        yield f"data: {json.dumps({'type': 'status', 'message': status_msg, 'progress': 10, 'total_blogs': len(blog_urls), 'resume_token': session_token, 'blog_path': blog_path})}\n\n"
     
     # Step 2: Extract all links from each blog post with resume capability
     if not saved_progress or not all_links:
@@ -269,7 +269,7 @@ async def stream_blog_link_check(request: BlogLinkCheckStreamRequest) -> Generat
                 if blog_url in processed_blogs:
                     continue
                     
-                yield f"data: {json.dumps({'type': 'log', 'message': f'กำลังตรวจสอบบทความที่ {i}/{len(blog_urls, ensure_ascii=False)}: {blog_url}', 'current': i, 'total': len(blog_urls)})}\n\n"
+                yield f"data: {json.dumps({'type': 'log', 'message': f'กำลังตรวจสอบบทความที่ {i}/{len(blog_urls)}: {blog_url}', 'current': i, 'total': len(blog_urls)})}\n\n"
                 
                 try:
                     links = extract_links_from_page(blog_url)
@@ -287,11 +287,11 @@ async def stream_blog_link_check(request: BlogLinkCheckStreamRequest) -> Generat
                     processed_blogs.add(blog_url)
                     
                 except Exception as e:
-                    yield f"data: {json.dumps({'type': 'warning', 'message': f'ข้ามบทความ {blog_url}: {str(e, ensure_ascii=False)[:50]}'})}\n\n"
+                    yield f"data: {json.dumps({'type': 'warning', 'message': f'ข้ามบทความ {blog_url}: {str(e)[:50]}'})}\n\n"
                 
                 # Update progress
                 progress = 10 + (30 * i / len(blog_urls))
-                yield f"data: {json.dumps({'type': 'progress', 'progress': round(progress, ensure_ascii=False)})}\n\n"
+                yield f"data: {json.dumps({'type': 'progress', 'progress': round(progress)})}\n\n"
                 
                 # Save progress periodically
                 if i % 10 == 0:  # Save every 10 blogs
@@ -313,7 +313,7 @@ async def stream_blog_link_check(request: BlogLinkCheckStreamRequest) -> Generat
             # Small delay between batches
             await asyncio.sleep(0.2)
     
-    yield f"data: {json.dumps({'type': 'status', 'message': f'พบลิงก์ทั้งหมด {len(all_links, ensure_ascii=False)} ลิงก์ กำลังตรวจสอบ...', 'progress': 40})}\n\n"
+    yield f"data: {json.dumps({'type': 'status', 'message': f'พบลิงก์ทั้งหมด {len(all_links)} ลิงก์ กำลังตรวจสอบ...', 'progress': 40})}\n\n"
     
     # Step 3: Check all unique links (skip already checked if resuming)
     checked_links = set()
@@ -339,7 +339,7 @@ async def stream_blog_link_check(request: BlogLinkCheckStreamRequest) -> Generat
         if not batch:
             continue  # Skip if all links in batch already checked
         
-        yield f"data: {json.dumps({'type': 'log', 'message': f'ตรวจสอบลิงก์ {batch_start + 1}-{batch_end} จาก {len(all_links, ensure_ascii=False)}', 'current': batch_end, 'total': len(all_links)})}\n\n"
+        yield f"data: {json.dumps({'type': 'log', 'message': f'ตรวจสอบลิงก์ {batch_start + 1}-{batch_end} จาก {len(all_links)}', 'current': batch_end, 'total': len(all_links)})}\n\n"
         
         # Check links in batch with retry mechanism
         retry_count = 0
@@ -357,7 +357,7 @@ async def stream_blog_link_check(request: BlogLinkCheckStreamRequest) -> Generat
                             
                             if result['is_broken']:
                                 broken_links.append(result)
-                                yield f"data: {json.dumps({'type': 'broken_found', 'link': result['url'], 'status': result.get('status_code', 'Error', ensure_ascii=False), 'found_in': result['found_in']})}\n\n"
+                                yield f"data: {json.dumps({'type': 'broken_found', 'link': result['url'], 'status': result.get('status_code', 'Error'), 'found_in': result['found_in']})}\n\n"
                             else:
                                 working_links.append(result)
                         except Exception as e:
@@ -369,13 +369,13 @@ async def stream_blog_link_check(request: BlogLinkCheckStreamRequest) -> Generat
                 print(f"Batch processing error (attempt {retry_count}/{max_retries}): {e}")
                 if retry_count >= max_retries:
                     batch_failed = True
-                    yield f"data: {json.dumps({'type': 'warning', 'message': f'บางลิงก์ในชุดที่ {batch_start + 1}-{batch_end} ไม่สามารถตรวจสอบได้'}, ensure_ascii=False)}\n\n"
+                    yield f"data: {json.dumps({'type': 'warning', 'message': f'บางลิงก์ในชุดที่ {batch_start + 1}-{batch_end} ไม่สามารถตรวจสอบได้'})}\n\n"
                 else:
                     await asyncio.sleep(1)  # Wait before retry
         
         # Update progress
         progress = 40 + (50 * batch_end / len(all_links))
-        yield f"data: {json.dumps({'type': 'progress', 'progress': round(progress, ensure_ascii=False)})}\n\n"
+        yield f"data: {json.dumps({'type': 'progress', 'progress': round(progress)})}\n\n"
         
         # Save progress periodically
         if batch_end % 20 == 0 or batch_failed:  # Save every 20 links or on failure
@@ -393,14 +393,14 @@ async def stream_blog_link_check(request: BlogLinkCheckStreamRequest) -> Generat
             
             # Send save notification on failure
             if batch_failed:
-                yield f"data: {json.dumps({'type': 'saved', 'message': 'ความคืบหน้าถูกบันทึกไว้', 'resume_token': session_token}, ensure_ascii=False)}\n\n"
+                yield f"data: {json.dumps({'type': 'saved', 'message': 'ความคืบหน้าถูกบันทึกไว้', 'resume_token': session_token})}\n\n"
         
         # Keep-alive between batches
         yield f": keep-alive\n\n"
         await asyncio.sleep(0.2)
     
     # Step 4: Organize results
-    yield f"data: {json.dumps({'type': 'status', 'message': 'กำลังสรุปผลการตรวจสอบ...', 'progress': 90}, ensure_ascii=False)}\n\n"
+    yield f"data: {json.dumps({'type': 'status', 'message': 'กำลังสรุปผลการตรวจสอบ...', 'progress': 90})}\n\n"
     
     # Group broken links by blog post
     broken_by_post = {}
@@ -423,7 +423,7 @@ async def stream_blog_link_check(request: BlogLinkCheckStreamRequest) -> Generat
     clear_progress(session_token)
     
     # Send final results with chunking for large datasets
-    yield f"data: {json.dumps({'type': 'summary', 'summary': summary, 'progress': 95}, ensure_ascii=False)}\n\n"
+    yield f"data: {json.dumps({'type': 'summary', 'summary': summary, 'progress': 95})}\n\n"
     
     # Then send complete data in manageable chunks
     final_data = {
@@ -438,7 +438,7 @@ async def stream_blog_link_check(request: BlogLinkCheckStreamRequest) -> Generat
         'resume_token': None  # Clear token on completion
     }
     
-    yield f"data: {json.dumps(final_data, ensure_ascii=False)}\n\n"
+    yield f"data: {json.dumps(final_data)}\n\n"
 
 @router.get("/api/check-blog-links-stream")
 async def check_blog_links_stream(
@@ -461,7 +461,7 @@ async def check_blog_links_stream(
     )
     return StreamingResponse(
         stream_blog_link_check(request),
-        media_type="text/event-stream; charset=utf-8",
+        media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache, no-store, must-revalidate",
             "Connection": "keep-alive",
