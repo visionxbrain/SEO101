@@ -422,4 +422,14 @@ async def root():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    import platform
+    
+    # Different host binding for Windows vs Mac/Linux
+    if platform.system() == "Windows":
+        # Windows often has issues with 0.0.0.0, use localhost
+        host = "127.0.0.1"
+    else:
+        host = "0.0.0.0"
+    
+    print(f"Starting server on {host}:8000 (Platform: {platform.system()})")
+    uvicorn.run(app, host=host, port=8000, log_level="info")
