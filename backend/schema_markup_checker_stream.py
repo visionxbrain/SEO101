@@ -10,9 +10,45 @@ from urllib.parse import urlparse
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import asyncio
-from thai_encoding_fix import fix_thai_encoding
+import re
 
 router = APIRouter()
+
+def fix_thai_encoding(obj):
+    """Fix incorrectly encoded Thai text in JSON data"""
+    if isinstance(obj, str):
+        # Check if string contains Unicode escape sequences for Thai characters
+        if r'\u0e' in obj or '\\u0e' in obj:
+            try:
+                # Try to decode Unicode escapes
+                # First handle double-escaped sequences
+                fixed = obj.replace('\\\\', '\\')
+                # Then decode the Unicode escapes
+                fixed = fixed.encode().decode('unicode-escape')
+                # If result contains Thai characters, return it
+                if any('\u0e00' <= c <= '\u0e7f' for c in fixed):
+                    return fixed
+            except:
+                pass
+        
+        # Also try to detect and fix mojibake patterns
+        # Common pattern: à¸ represents Thai character encoding issues
+        if 'à¸' in obj or 'à¹' in obj or 'Ã' in obj:
+            try:
+                # Try to fix UTF-8 decoded as Latin-1
+                fixed = obj.encode('latin-1').decode('utf-8', errors='ignore')
+                if any('\u0e00' <= c <= '\u0e7f' for c in fixed):
+                    return fixed
+            except:
+                pass
+        
+        return obj
+    elif isinstance(obj, dict):
+        return {key: fix_thai_encoding(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [fix_thai_encoding(item) for item in obj]
+    else:
+        return obj
 
 class SchemaCheckStreamRequest(BaseModel):
     sitemap_url: str
