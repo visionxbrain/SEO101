@@ -686,7 +686,7 @@ export const openWithIssuesOverlay = (url, headingHierarchy, issues, score) => {
   const scriptCode = generateHeadingsMapWithIssues(headingHierarchy, issues, score);
   
   navigator.clipboard.writeText(scriptCode).then(() => {
-    alert(\`
+    alert(`
 🎯 HeadingsMap with Issues Detection
 
 1. หน้าเว็บจะเปิดในแท็บใหม่
@@ -699,7 +699,7 @@ export const openWithIssuesOverlay = (url, headingHierarchy, issues, score) => {
 • แท็บ "โครงสร้าง" - แสดง heading tree
 • คลิก "ดูตำแหน่ง" เพื่อ highlight heading ที่มีปัญหา
 • Score แสดงคุณภาพโครงสร้าง heading
-    \`);
+    `);
     
     window.open(url, '_blank');
   }).catch(() => {
