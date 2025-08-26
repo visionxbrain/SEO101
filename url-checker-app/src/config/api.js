@@ -1,9 +1,15 @@
 // API Configuration for both Mac and Windows
 const getApiUrl = () => {
+  // Check if we're using Netlify Functions
+  if (window.location.hostname === 'seotar.netlify.app' || window.location.hostname.includes('netlify')) {
+    // Use Netlify Functions (same domain)
+    return '/.netlify/functions';
+  }
+  
   // Check if we're in production
   if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    // Use Render.com backend (จะอัพเดทเป็น URL จริงหลังได้ URL จาก Render)
-    return 'https://seo101-backend.onrender.com';
+    // Use Netlify Functions for any production deployment
+    return '/.netlify/functions';
   }
   
   // In production, use environment variable

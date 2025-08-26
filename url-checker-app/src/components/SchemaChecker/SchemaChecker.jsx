@@ -167,7 +167,8 @@ function SchemaChecker() {
       setResults(null);
 
       try {
-        const response = await fetch(`${API_URL}/api/check-schema-markup`, {
+        const endpoint = API_URL.includes('netlify') ? `${API_URL}/check-schema-markup` : `${API_URL}/api/check-schema-markup`;
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
