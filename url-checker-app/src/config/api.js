@@ -1,23 +1,20 @@
 // API Configuration for both Mac and Windows
 const getApiUrl = () => {
-  // Check if we're using Netlify Functions
-  if (window.location.hostname === 'seotar.netlify.app' || window.location.hostname.includes('netlify')) {
-    // Use Netlify Functions (same domain)
-    return '/.netlify/functions';
-  }
+  // For now, use a public backend service
+  // We'll deploy backend separately
   
-  // Check if we're in production
-  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    // Use Netlify Functions for any production deployment
-    return '/.netlify/functions';
-  }
-  
-  // In production, use environment variable
+  // Check environment variable first
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
   
-  // For development, return localhost which works on both platforms
+  // For development, return localhost
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:8000';
+  }
+  
+  // For production, temporarily use localhost (will update after backend deployment)
+  // Users need to run backend locally for now
   return 'http://localhost:8000';
 };
 
