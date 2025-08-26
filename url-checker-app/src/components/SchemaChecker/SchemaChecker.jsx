@@ -143,7 +143,8 @@ function SchemaChecker() {
         };
         
       } catch (err) {
-        setError(err.message || 'ไม่สามารถเชื่อมต่อกับ Server ได้');
+        const errorDetails = handleApiError(err);
+        setError(errorDetails.message);
         setLoading(false);
         setStreaming(false);
       }
@@ -166,7 +167,7 @@ function SchemaChecker() {
       setResults(null);
 
       try {
-        const response = await fetch('http://localhost:8000/api/check-schema-markup', {
+        const response = await fetch(`${API_URL}/api/check-schema-markup`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -182,7 +183,8 @@ function SchemaChecker() {
         const data = await response.json();
         setResults(data);
       } catch (err) {
-        setError(err.message || 'ไม่สามารถตรวจสอบ Schema ได้');
+        const errorDetails = handleApiError(err);
+        setError(errorDetails.message);
       } finally {
         setLoading(false);
       }
