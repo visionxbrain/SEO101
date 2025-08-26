@@ -423,6 +423,10 @@ async def root():
 if __name__ == "__main__":
     import uvicorn
     import platform
+    import os
+    
+    # Get port from environment variable (for cloud deployment)
+    port = int(os.environ.get("PORT", 8000))
     
     # Different host binding for Windows vs Mac/Linux
     if platform.system() == "Windows":
@@ -431,5 +435,9 @@ if __name__ == "__main__":
     else:
         host = "0.0.0.0"
     
-    print(f"Starting server on {host}:8000 (Platform: {platform.system()})")
-    uvicorn.run(app, host=host, port=8000, log_level="info")
+    # Override for cloud deployment
+    if os.environ.get("RENDER") or os.environ.get("RAILWAY_ENVIRONMENT"):
+        host = "0.0.0.0"
+    
+    print(f"Starting server on {host}:{port} (Platform: {platform.system()})")
+    uvicorn.run(app, host=host, port=port, log_level="info")
