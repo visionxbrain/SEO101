@@ -4,5 +4,5 @@ gunicorn==21.2.0
 requests==2.31.0
 python-multipart==0.0.6
 beautifulsoup4==4.12.2
-pydantic==2.5.0
-lxml==4.9.3
+pydantic==2.5.3
+lxml==5.1.0
