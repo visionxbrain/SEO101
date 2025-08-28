@@ -418,7 +418,11 @@ async def test_sitemap(request: SitemapTestRequest):
 
 @app.get("/")
 async def root():
-    return {"message": "404 URL Checker API"}
+    return {"message": "404 URL Checker API", "status": "healthy"}
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
 
 if __name__ == "__main__":
     import uvicorn
