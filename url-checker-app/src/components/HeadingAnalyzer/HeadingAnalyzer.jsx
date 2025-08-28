@@ -25,6 +25,7 @@ import {
 import './HeadingAnalyzer.css';
 import { openWithOverlay } from '../../utils/headingOverlay';
 import { openWithIssuesOverlay } from '../../utils/headingOverlayWithIssues';
+import config from '../../config';
 
 function HeadingAnalyzer() {
   const [urls, setUrls] = useState('');
@@ -74,7 +75,7 @@ function HeadingAnalyzer() {
     setResults(null);
 
     try {
-      const response = await fetch('http://localhost:8000/api/check-heading-structure', {
+      const response = await fetch(config.endpoints.checkHeadingStructure, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

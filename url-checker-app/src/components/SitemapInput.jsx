@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Globe, Info, Link, FileText, CheckCircle, XCircle, Loader } from 'lucide-react';
 import axios from 'axios';
+import config from '../config';
 
 function SitemapInput({ sitemapUrl, setSitemapUrl }) {
   const [localSitemapUrl, setLocalSitemapUrl] = useState('');
@@ -40,7 +41,7 @@ function SitemapInput({ sitemapUrl, setSitemapUrl }) {
     setShowError(false);
     
     try {
-      const response = await axios.post('http://localhost:8000/api/test-sitemap', {
+      const response = await axios.post(config.endpoints.testSitemap, {
         sitemap_url: localSitemapUrl,
         sample_url: sitemapUrl ? sitemapUrl : 'https://example.com'
       });

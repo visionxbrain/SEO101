@@ -4,6 +4,7 @@ import UploadForm from './UploadForm';
 import Results from './Results';
 import SitemapInput from './SitemapInput';
 import ErrorDetails from './ErrorDetails';
+import config from '../config';
 
 function URLChecker() {
   const [results, setResults] = useState(null);
@@ -33,7 +34,7 @@ function URLChecker() {
     try {
       for (let i = 0; i < batches.length; i++) {
         setCurrentBatch(i + 1);
-        const response = await axios.post('http://localhost:8000/api/check-urls', {
+        const response = await axios.post(config.endpoints.checkUrls, {
           urls: batches[i],
           sitemap_url: sitemapUrl
         });

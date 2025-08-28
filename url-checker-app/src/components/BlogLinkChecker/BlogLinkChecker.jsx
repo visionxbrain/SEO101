@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, ExternalLink, Search, AlertCircle, CheckCircle, XCircle, Download, Globe, Play, Pause, RotateCcw } from 'lucide-react';
 import './BlogLinkChecker.css';
+import config from '../../config';
 
 function BlogLinkChecker() {
   const [sitemapUrl, setSitemapUrl] = useState('');
@@ -79,7 +80,7 @@ function BlogLinkChecker() {
         }
         
         newEventSource = new EventSource(
-          `http://localhost:8000/api/check-blog-links-stream?` + 
+          `${config.endpoints.checkBlogLinksStream}?` + 
           new URLSearchParams(params)
         );
         

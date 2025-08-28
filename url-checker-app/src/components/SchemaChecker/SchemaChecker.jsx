@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Code, Search, AlertCircle, CheckCircle, XCircle, Download, TrendingUp, FileCode, Award, FileText, Globe, ExternalLink, ArrowUp } from 'lucide-react';
 import './SchemaChecker.css';
+import config from '../../config';
 
 function SchemaChecker() {
   const [urls, setUrls] = useState('');
@@ -32,7 +33,7 @@ function SchemaChecker() {
 
       try {
         const eventSource = new EventSource(
-          `http://localhost:8000/api/check-schema-markup-stream?` + 
+          `${config.endpoints.checkSchemaMarkupStream}?` + 
           new URLSearchParams({
             sitemap_url: sitemapUrl,
             limit: urlLimit.toString(),
@@ -150,7 +151,7 @@ function SchemaChecker() {
       setResults(null);
 
       try {
-        const response = await fetch('http://localhost:8000/api/check-schema-markup', {
+        const response = await fetch(config.endpoints.checkSchemaMarkup, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
